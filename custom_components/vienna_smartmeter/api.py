@@ -1,16 +1,15 @@
 """Vienna Smartmeter API Client."""
 import asyncio
-from datetime import datetime
 import logging
 import socket
-
+from datetime import datetime
 from urllib import parse
-from lxml import html
-
-from .errors import SmartmeterLoginError
 
 import aiohttp
 import async_timeout
+from lxml import html
+
+from .errors import SmartmeterLoginError
 
 TIMEOUT = 10
 
