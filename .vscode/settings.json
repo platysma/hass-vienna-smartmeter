@@ -1,0 +1,17 @@
+{
+  "python.linting.enabled": true,
+  "python.linting.pylintEnabled": false,
+  "python.linting.flake8Enabled": true,
+  "python.linting.flake8Args": ["--config=setup.cfg"],
+  "python.formatting.provider": "black",
+  "python.pythonPath": "venv/bin/python",
+  "files.associations": {
+    "*.yaml": "home-assistant"
+  },
+  "files.eol": "\n",
+  "editor.tabSize": 2,
+  "editor.formatOnPaste": false,
+  "editor.formatOnSave": true,
+  "editor.formatOnType": true,
+  "files.trimTrailingWhitespace": true,
+}
