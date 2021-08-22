@@ -1,2 +1,2 @@
 homeassistant
-lxml
+vienna-smartmeter
