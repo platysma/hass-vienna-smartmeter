@@ -4,11 +4,15 @@ from homeassistant import config_entries
 from homeassistant.core import callback
 from homeassistant.helpers.aiohttp_client import async_create_clientsession
 
-from .api import ViennaSmartmeterApiClient
+from vienna_smartmeter import AsyncSmartmeter
 from .const import CONF_PASSWORD
 from .const import CONF_USERNAME
 from .const import DOMAIN
 from .const import PLATFORMS
+
+import logging
+
+_LOGGER: logging.Logger = logging.getLogger(__package__)
 
 
 class ViennaSmartmeterFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
@@ -29,6 +33,7 @@ class ViennaSmartmeterFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             valid = await self._test_credentials(
                 user_input[CONF_USERNAME], user_input[CONF_PASSWORD]
             )
+
             if valid:
                 return self.async_create_entry(
                     title=user_input[CONF_USERNAME], data=user_input
@@ -59,10 +64,12 @@ class ViennaSmartmeterFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         """Return true if credentials is valid."""
         try:
             session = async_create_clientsession(self.hass)
-            client = ViennaSmartmeterApiClient(username, password, session)
-            await client.async_get_profil()
+            client = AsyncSmartmeter(username, password, session)
+            await client.refresh_token()
+            await client.get_zaehlpunkte()
             return True
-        except Exception:  # pylint: disable=broad-except
+        except Exception as e:  # pylint: disable=broad-except
+            _LOGGER.exception(e)
             pass
         return False
 
