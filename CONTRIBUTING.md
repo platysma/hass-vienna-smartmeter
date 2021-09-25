@@ -46,7 +46,7 @@ Use [black](https://github.com/ambv/black) and [prettier](https://prettier.io/)
 to make sure the code follows the style.
 
 Or use the `pre-commit` settings implemented in this repository
-(see deicated section below).
+(see dedicated section below).
 
 ## Test your code modification
 
