@@ -8,20 +8,22 @@
 [![hacs][hacsbadge]][hacs]
 [![Community Forum][forum-shield]][forum]
 
-**This component will set up the following platforms.**
+**This Home Assistant Integration is still in the initial development phase, and may introduce breaking changes at any time.**
+
+## Todo
+- Decide on best API data source (absolute/relative meter readings)
+- Write tests
+- Fix CI/CD
+
+If you want to contribute please read the [Contribution guidelines](CONTRIBUTING.md)
+
+This component will set up the following platforms:
 
 | Platform | Description                            |
 | -------- | -------------------------------------- |
 | `sensor` | Show info from Vienna Smart Meter API. |
 
 ## Installation
-
----
-**WARNING**
-
-This integration is not working right now!
-
----
 
 1. Using the tool of choice open the directory (folder) for your HA configuration (where you find `configuration.yaml`).
 2. If you do not have a `custom_components` directory (folder) there, you need to create it.
@@ -30,10 +32,6 @@ This integration is not working right now!
 5. Place the files you downloaded in the new directory (folder) you created.
 6. Restart Home Assistant
 7. In the HA UI go to "Configuration" -> "Integrations" click "+" and search for "Vienna Smart Meter"
-
-## Contributions are welcome!
-
-If you want to contribute to this please read the [Contribution guidelines](CONTRIBUTING.md)
 
 ## Credits
 

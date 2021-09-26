@@ -7,5 +7,5 @@
   "config_flow": true,
   "codeowners": ["@platysma"],
   "version": "0.1.0",
-  "requirements": ["lxml==4.6.3"]
+  "requirements": ["vienna-smartmeter[async]==0.3.2"]
 }
