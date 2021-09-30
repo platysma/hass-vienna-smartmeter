@@ -1,23 +1,24 @@
 """Sensor platform for Vienna Smart Meter."""
+import logging
+from typing import Callable
+from typing import Optional
+
+from homeassistant import config_entries
+from homeassistant import core
 from homeassistant.const import ENERGY_WATT_HOUR
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
-from typing import Callable, Optional
-from homeassistant import config_entries, core
+from homeassistant.helpers.entity import Entity
+from homeassistant.helpers.typing import ConfigType
+from homeassistant.helpers.typing import DiscoveryInfoType
+from homeassistant.helpers.typing import HomeAssistantType
 
-from homeassistant.helpers.typing import (
-    ConfigType,
-    DiscoveryInfoType,
-    HomeAssistantType,
-)
-
-from .const import ATTRIBUTION, DEFAULT_NAME, ICON
 from .const import CONF_PASSWORD
 from .const import CONF_USERNAME
+from .const import DEFAULT_NAME
 from .const import DOMAIN
+from .const import ICON
 from .const import SENSOR
-from homeassistant.helpers.entity import Entity
 from vienna_smartmeter import AsyncSmartmeter
-import logging
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -114,5 +115,3 @@ class ViennaSmartmeterEntity(Entity):
             _LOGGER.exception(
                 f"Error retrieving data from Smartmeter for sensor {self.name}: {e}.",
             )
-
-

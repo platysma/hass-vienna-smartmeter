@@ -1,16 +1,16 @@
 """Adds config flow for Vienna Smart Meter."""
+import logging
+
 import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.core import callback
 from homeassistant.helpers.aiohttp_client import async_create_clientsession
 
-from vienna_smartmeter import AsyncSmartmeter
 from .const import CONF_PASSWORD
 from .const import CONF_USERNAME
 from .const import DOMAIN
 from .const import PLATFORMS
-
-import logging
+from vienna_smartmeter import AsyncSmartmeter
 
 _LOGGER: logging.Logger = logging.getLogger(__package__)
 
