@@ -11,6 +11,7 @@
 **This Home Assistant Integration is still in the initial development phase, and may introduce breaking changes at any time.**
 
 ## Todo
+
 - Decide on best API data source (absolute/relative meter readings)
 - Write tests
 - Fix CI/CD
