@@ -4,14 +4,13 @@ Custom integration to integrate Vienna Smart Meter with Home Assistant.
 For more details about this integration, please refer to
 https://github.com/platysma/hass-vienna-smartmeter
 """
-import logging
 from datetime import timedelta
+import logging
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 
-from .const import DOMAIN
-from .const import STARTUP_MESSAGE
+from .const import DOMAIN, STARTUP_MESSAGE
 
 SCAN_INTERVAL = timedelta(seconds=30)
 

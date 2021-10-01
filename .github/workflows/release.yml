@@ -7,7 +7,7 @@ on:
       - master
 
 jobs:
-  relase:
+  release:
     name: Release
     runs-on: ubuntu-latest
     steps:

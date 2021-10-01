@@ -1,16 +1,20 @@
 """Adds config flow for Vienna Smart Meter."""
-import logging
+from __future__ import annotations
 
+import logging
+from typing import Dict, Optional
+
+from vienna_smartmeter import AsyncSmartmeter
 import voluptuous as vol
+
 from homeassistant import config_entries
+from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import callback
+from homeassistant.data_entry_flow import FlowResult
 from homeassistant.helpers.aiohttp_client import async_create_clientsession
 
-from .const import CONF_PASSWORD
-from .const import CONF_USERNAME
-from .const import DOMAIN
-from .const import PLATFORMS
-from vienna_smartmeter import AsyncSmartmeter
+from .const import CONF_PASSWORD, CONF_USERNAME, DOMAIN, PLATFORMS
+from .types import ConfigFlowDict
 
 _LOGGER: logging.Logger = logging.getLogger(__package__)
 
@@ -21,11 +25,13 @@ class ViennaSmartmeterFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
     VERSION = 1
     CONNECTION_CLASS = config_entries.CONN_CLASS_CLOUD_POLL
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize."""
-        self._errors = {}
+        self._errors: Dict[str, str] = {}
 
-    async def async_step_user(self, user_input=None):
+    async def async_step_user(
+        self, user_input: Optional[Dict[str, str]] = None
+    ) -> FlowResult:
         """Handle a flow initialized by the user."""
         self._errors = {}
 
@@ -38,19 +44,20 @@ class ViennaSmartmeterFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
                 return self.async_create_entry(
                     title=user_input[CONF_USERNAME], data=user_input
                 )
-            else:
-                self._errors["base"] = "auth"
+            self._errors["base"] = "auth"
 
-            return await self._show_config_form(user_input)
+            return await self._show_config_form()
 
-        return await self._show_config_form(user_input)
+        return await self._show_config_form()
 
     @staticmethod
     @callback
-    def async_get_options_flow(config_entry):
+    def async_get_options_flow(
+        config_entry: ConfigEntry,
+    ) -> ViennaSmartmeterOptionsFlowHandler:
         return ViennaSmartmeterOptionsFlowHandler(config_entry)
 
-    async def _show_config_form(self, user_input):  # pylint: disable=unused-argument
+    async def _show_config_form(self) -> FlowResult:
         """Show the configuration form to edit location data."""
         return self.async_show_form(
             step_id="user",
@@ -60,7 +67,7 @@ class ViennaSmartmeterFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             errors=self._errors,
         )
 
-    async def _test_credentials(self, username, password):
+    async def _test_credentials(self, username: str, password: str) -> bool:
         """Return true if credentials is valid."""
         try:
             session = async_create_clientsession(self.hass)
@@ -68,25 +75,28 @@ class ViennaSmartmeterFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             await client.refresh_token()
             await client.get_zaehlpunkte()
             return True
-        except Exception as e:  # pylint: disable=broad-except
-            _LOGGER.exception(e)
-            pass
+        except Exception as exception:  # pylint: disable=broad-except
+            _LOGGER.exception(exception)
         return False
 
 
 class ViennaSmartmeterOptionsFlowHandler(config_entries.OptionsFlow):
     """Config flow options handler for vienna_smartmeter."""
 
-    def __init__(self, config_entry):
+    def __init__(self, config_entry: ConfigEntry) -> None:
         """Initialize HACS options flow."""
         self.config_entry = config_entry
         self.options = dict(config_entry.options)
 
-    async def async_step_init(self, user_input=None):  # pylint: disable=unused-argument
+    async def async_step_init(
+        self, user_input: Optional[ConfigFlowDict] = None
+    ) -> FlowResult:
         """Manage the options."""
-        return await self.async_step_user()
+        return await self.async_step_user(user_input)
 
-    async def async_step_user(self, user_input=None):
+    async def async_step_user(
+        self, user_input: Optional[ConfigFlowDict] = None
+    ) -> FlowResult:
         """Handle a flow initialized by the user."""
         if user_input is not None:
             self.options.update(user_input)
@@ -102,7 +112,7 @@ class ViennaSmartmeterOptionsFlowHandler(config_entries.OptionsFlow):
             ),
         )
 
-    async def _update_options(self):
+    async def _update_options(self) -> FlowResult:
         """Update config entry options."""
         return self.async_create_entry(
             title=self.config_entry.data.get(CONF_USERNAME), data=self.options
