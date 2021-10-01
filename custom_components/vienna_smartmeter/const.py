@@ -24,6 +24,9 @@ CONF_ENABLED = "enabled"
 CONF_USERNAME = "username"
 CONF_PASSWORD = "password"
 
+DEFAULT_USERNAME = "demouser"
+DEFAULT_PASSWORD = "Demouser123"
+
 # Defaults
 DEFAULT_NAME = DOMAIN
 
