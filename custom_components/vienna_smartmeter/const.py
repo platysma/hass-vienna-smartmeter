@@ -21,6 +21,7 @@ PLATFORMS = [SENSOR]
 
 # Configuration and options
 CONF_ENABLED = "enabled"
+CONF_SCAN_INTERVAL = "scan_interval"
 CONF_USERNAME = "username"
 CONF_PASSWORD = "password"
 
