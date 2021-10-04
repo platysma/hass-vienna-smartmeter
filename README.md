@@ -19,7 +19,7 @@
 </p>
 
 <p align="center">
-  **:collision: Breaking Changes:**
+  :collision: <b>Breaking Changes:</b>
   This Home Assistant Integration is still in the initial development phase, and may introduce breaking changes at any time.
 </p>
 
