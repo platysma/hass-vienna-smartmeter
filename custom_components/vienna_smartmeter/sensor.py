@@ -2,15 +2,14 @@
 import logging
 from typing import Optional
 
-from vienna_smartmeter import AsyncSmartmeter
-from vienna_smartmeter.errors import SmartmeterLoginError
-
 from homeassistant import config_entries, core
 from homeassistant.const import ENERGY_WATT_HOUR
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.entity import Entity
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.typing import ConfigType, HomeAssistantType
+from vienna_smartmeter import AsyncSmartmeter
+from vienna_smartmeter.errors import SmartmeterLoginError
 
 from .const import CONF_PASSWORD, CONF_USERNAME, DEFAULT_NAME, DOMAIN, ICON, SENSOR
 

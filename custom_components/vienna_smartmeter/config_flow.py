@@ -4,14 +4,12 @@ from __future__ import annotations
 import logging
 from typing import Dict, Optional
 
-from vienna_smartmeter import AsyncSmartmeter
-import voluptuous as vol
-
 from homeassistant import config_entries
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import callback
 from homeassistant.data_entry_flow import FlowResult
-from homeassistant.helpers.aiohttp_client import async_create_clientsession
+from vienna_smartmeter import AsyncSmartmeter
+import voluptuous as vol
 
 from .const import CONF_PASSWORD, CONF_USERNAME, DOMAIN, PLATFORMS
 from .types import ConfigFlowDict
@@ -36,7 +34,7 @@ class ViennaSmartmeterFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         self._errors = {}
 
         if user_input is not None:
-            valid = await self._test_credentials(
+            valid = await _test_credentials(
                 user_input[CONF_USERNAME], user_input[CONF_PASSWORD]
             )
 
@@ -67,17 +65,17 @@ class ViennaSmartmeterFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             errors=self._errors,
         )
 
-    async def _test_credentials(self, username: str, password: str) -> bool:
-        """Return true if credentials is valid."""
-        try:
-            session = async_create_clientsession(self.hass)
-            client = AsyncSmartmeter(username, password, session)
-            await client.refresh_token()
-            await client.get_zaehlpunkte()
-            return True
-        except Exception as exception:  # pylint: disable=broad-except
-            _LOGGER.exception(exception)
-        return False
+
+async def _test_credentials(username: str, password: str) -> bool:
+    """Return true if credentials is valid."""
+    try:
+        client = AsyncSmartmeter(username, password)
+        await client.refresh_token()
+        await client.get_zaehlpunkte()
+        return True
+    except Exception as exception:  # pylint: disable=broad-except
+        _LOGGER.exception(exception)
+    return False
 
 
 class ViennaSmartmeterOptionsFlowHandler(config_entries.OptionsFlow):
