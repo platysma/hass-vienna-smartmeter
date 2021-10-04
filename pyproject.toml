@@ -7,7 +7,6 @@ authors = ["Platysma <platysma.dev@gmail.com>"]
 [tool.poetry.dependencies]
 python = "^3.9"
 vienna-smartmeter = {version = "^0.3.2", extras = ["async"]}
-homeassistant = "^2021.9.7"
 
 
 
@@ -19,7 +18,6 @@ flake8-bugbear = "^21.9.2"
 flake8-comprehensions = "^3.6.1"
 flake8-simplify = "^0.14.2"
 flake8-use-fstring = "^1.1"
-homeassistant-stubs = "^2021.9.7"
 pre-commit = "^2.15.0"
 pylint = "^2.11.1"
 isort = "^5.9.3"
@@ -27,6 +25,9 @@ mypy = "^0.910"
 codespell = "^2.1.0"
 pytest = "^6.2.5"
 pytest-cov = "^2.12.1"
+pytest-homeassistant-custom-component = "^0.4.5"
+homeassistant-stubs = {version = "^2021.9.7", allow-prereleases = true}
+homeassistant = {version = "^2021.9.7", allow-prereleases = true}
 
 [tool.pylint.messages_control]
 # Reasons disabled:
