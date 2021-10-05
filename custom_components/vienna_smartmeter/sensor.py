@@ -1,19 +1,31 @@
 """Sensor platform for Vienna Smart Meter."""
-import logging
-from typing import Optional
+from typing import Any, Dict, Optional, Union
 
 from homeassistant import config_entries, core
-from homeassistant.const import ENERGY_WATT_HOUR
-from homeassistant.helpers.aiohttp_client import async_get_clientsession
-from homeassistant.helpers.entity import Entity
+from homeassistant.components.sensor import STATE_CLASS_TOTAL, SensorEntity
+from homeassistant.const import DEVICE_CLASS_ENERGY, ENERGY_KILO_WATT_HOUR
+from homeassistant.exceptions import InvalidStateError
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from homeassistant.helpers.typing import ConfigType, HomeAssistantType
-from vienna_smartmeter import AsyncSmartmeter
-from vienna_smartmeter.errors import SmartmeterLoginError
 
-from .const import CONF_PASSWORD, CONF_USERNAME, DEFAULT_NAME, DOMAIN, ICON, SENSOR
+from custom_components.vienna_smartmeter import ViennaSmartmeterDataUpdateCoordinator
+from custom_components.vienna_smartmeter.entity import ViennaSmartmeterEntity
 
-_LOGGER = logging.getLogger(__name__)
+from .const import DOMAIN
+
+
+def create_energy_meta(
+    name: str, keyword: str, state: Optional[str] = None
+) -> Dict[str, Any]:
+    """Create metadata dict for energy sensors."""
+    return {
+        "name": name,
+        "keyword": keyword,
+        "device_class": DEVICE_CLASS_ENERGY,
+        "unit": ENERGY_KILO_WATT_HOUR,
+        "icon": "mdi:flash",
+        "state_class": state,
+        "attrs": {},
+    }
 
 
 async def async_setup_entry(
@@ -22,83 +34,92 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     """Setup sensors from a config entry created in the integrations UI."""
-    config = hass.data[DOMAIN][config_entry.entry_id]
-    # Update our config to include new repos and remove those that have been removed.
-    if config_entry.options:
-        config.update(config_entry.options)
-    session = async_get_clientsession(hass)
-    # _LOGGER.info(config[CONF_USERNAME])
-    client = AsyncSmartmeter(config[CONF_USERNAME], config[CONF_PASSWORD], session)
-    # zaehlpunkte = await client.get_zaehlpunkte()
-    # _LOGGER.info(zaehlpunkte)
-    # meter_id = zaehlpunkte[0]["zaehlpunkte"][0]["zaehlpunktnummer"]
-    async_add_entities([ViennaSmartmeterEntity(client)], update_before_add=True)
+    coordinator = hass.data[DOMAIN][config_entry.entry_id]
+    sensors = []
+
+    sensors.append(
+        ViennaSmartmeterSensor(
+            coordinator,
+            config_entry,
+            create_energy_meta("Meter Reading", "meterReadings", STATE_CLASS_TOTAL),
+        )
+    )
+
+    sensors.append(
+        ViennaSmartmeterSensor(
+            coordinator,
+            config_entry,
+            create_energy_meta("Consumption Yesterday", "consumptionYesterday"),
+        )
+    )
+
+    sensors.append(
+        ViennaSmartmeterSensor(
+            coordinator,
+            config_entry,
+            create_energy_meta(
+                "Consumption Day before Yesterday", "consumptionDayBeforeYesterday"
+            ),
+        )
+    )
+
+    async_add_entities(sensors, update_before_add=True)
 
 
-async def async_setup_platform(
-    hass: HomeAssistantType, config: ConfigType, async_add_entities: AddEntitiesCallback
-) -> None:
-    """Set up the sensor platform."""
-    session = async_get_clientsession(hass)
-    client = AsyncSmartmeter(config[CONF_USERNAME], config[CONF_PASSWORD], session)
-    async_add_entities([ViennaSmartmeterEntity(client)], update_before_add=True)
+class ViennaSmartmeterSensor(ViennaSmartmeterEntity, SensorEntity):
+    """Vienna Smartmeter sensor class."""
 
-
-class ViennaSmartmeterEntity(Entity):
-    """Representation of a Vienna Smartmeter Sensor entity."""
-
-    def __init__(self, api_client: AsyncSmartmeter):
-        super().__init__()
-        self.api_client = api_client
-        self.meter_id = DEFAULT_NAME
-        self._available = True
-        self._state = None
-
-    @property
-    def unique_id(self) -> str:
-        """Return a unique ID of the entity."""
-        return self.meter_id
-
-    @property
-    def available(self) -> bool:
-        """Return True if entity is available."""
-        return self._available
-
-    @property
-    def unit_of_measurement(self) -> str:
-        """Return the unit of measurement."""
-        return ENERGY_WATT_HOUR
+    def __init__(
+        self,
+        coordinator: ViennaSmartmeterDataUpdateCoordinator,
+        config_entry: config_entries.ConfigEntry,
+        meta: Optional[Dict[str, Union[str, Dict[Any, Any]]]],
+    ) -> None:
+        """Init class."""
+        super().__init__(coordinator, config_entry, meta=meta)
 
     @property
-    def icon(self) -> str:
-        """Return the icon of the sensor."""
-        return ICON
+    def unique_id(self) -> Optional[str]:
+        """Return a unique ID to use for this entity."""
+        entry_id = {self.config_entry.entry_id}
+        meter_id = {self.coordinator.data["zaehlpunkt"]["zaehlpunktnummer"]}
+        keyword = self.meta["keyword"]
+        return f"{entry_id}-{meter_id}-{keyword}"
 
     @property
-    def name(self) -> str:
+    def name(self) -> Optional[str]:
         """Return the name of the sensor."""
-        return f"{DEFAULT_NAME}_{SENSOR}"
+        return self.meta.get("name")  # type: ignore[return-value]
 
     @property
-    def state(self) -> Optional[str]:
+    def state(self) -> float:
         """Return the state of the sensor."""
-        return self._state if self.state else None
+        keyword = self.meta["keyword"]
+        meter_dict = self.coordinator.data["zaehlpunkt"][keyword]
+        if isinstance(meter_dict, list):
+            return int(meter_dict[0]["value"]) / 1000
+        if isinstance(meter_dict, dict):
+            return int(meter_dict["value"]) / 1000
+        raise InvalidStateError(
+            f"Invalid state encountered for entity {self.meta['name']}."
+        )
 
     @property
-    def device_class(self) -> str:
+    def unit_of_measurement(self) -> Optional[str]:
+        """Return the unit of measurement of the sensor."""
+        return self.meta.get("unit")  # type: ignore[return-value]
+
+    @property
+    def icon(self) -> Optional[str]:
+        """Return the icon of the sensor."""
+        return self.meta.get("icon")  # type: ignore[return-value]
+
+    @property
+    def device_class(self) -> Optional[str]:
         """Return the device class of the sensor."""
-        return "vienna_smartmeter__custom_device_class"
-        # return DEVICE_CLASS_ENERGY
+        return self.meta.get("device_class")  # type: ignore[return-value]
 
-    async def async_update(self) -> None:
-        """Update meter reading by accessing the api."""
-        try:
-            await self.api_client.refresh_token()
-            api_data = await self.api_client.welcome()
-            meter_data = api_data["zaehlpunkt"]["meterReadings"][0]["value"]
-
-            self._state = meter_data
-            self._available = True
-        except SmartmeterLoginError:
-            _LOGGER.exception("Smartmeter login failed for sensor %s", self.name)
-            self._available = False
+    @property
+    def state_class(self) -> Optional[str]:
+        """Return the state class of the sensor."""
+        return self.meta.get("state_class")  # type: ignore[return-value]

@@ -1,15 +1,12 @@
-"""Constants for Vienna Smart Meter."""
+"""Constants for Vienna Smartmeter."""
 # Base component constants
-NAME = "Vienna Smart Meter"
+NAME = "Vienna Smartmeter"
 DOMAIN = "vienna_smartmeter"
 DOMAIN_DATA = f"{DOMAIN}_data"
 VERSION = "0.1.0"
 
 ATTRIBUTION = "Data provided by https://www.wienernetze.at/smartmeter"
 ISSUE_URL = "https://github.com/platysma/hass-vienna-smartmeter/issues"
-
-# Icons
-ICON = "mdi:flash"
 
 # Device classes
 BINARY_SENSOR_DEVICE_CLASS = "connectivity"
