@@ -16,6 +16,16 @@ jobs:
         with:
           fetch-depth: 2
 
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2.2.2
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install Poetry
+        uses: abatilo/actions-poetry@v2.1.3
+        with:
+          poetry-version: 1.1.5
+
       - name: Check if there is a parent commit
         id: check-parent-commit
         run: |
