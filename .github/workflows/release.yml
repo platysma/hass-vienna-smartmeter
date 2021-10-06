@@ -39,7 +39,15 @@ jobs:
           version-command: |
             bash -o pipefail -c "poetry version | awk '{ print \$2 }'"
 
+      - name: Update version in manifest.json
+        if: steps.check-version.outputs.tag
+        uses: pocket-apps/action-update-version@v1
+        with:
+          files: "manifest.json"
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Create zip release
+        if: steps.check-version.outputs.tag
         uses: thedoctor0/zip-release@master
         with:
           type: "zip"
@@ -47,12 +55,14 @@ jobs:
           filename: "release.zip"
 
       - name: Add zip archive to release
+        if: steps.check-version.outputs.tag
         uses: ncipollo/release-action@v1
         with:
           artifacts: "release.zip"
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Publish the release notes
+        if: steps.check-version.outputs.tag
         uses: release-drafter/release-drafter@v5.15.0
         with:
           publish: ${{ steps.check-version.outputs.tag != '' }}
