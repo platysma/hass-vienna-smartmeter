@@ -40,12 +40,12 @@ jobs:
         with:
           type: "zip"
           path: "custom_components/vienna_smartmeter"
-          filename: "release-${{ steps.check-version.outputs.tag }}.zip"
+          filename: "release.zip"
 
       - name: Add zip archive to release
         uses: ncipollo/release-action@v1
         with:
-          artifacts: "release-${{ steps.check-version.outputs.tag }}.zip"
+          artifacts: "release.zip"
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Publish the release notes
