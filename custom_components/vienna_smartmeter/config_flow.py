@@ -6,6 +6,7 @@ import logging
 import traceback
 from typing import Dict, Optional, Tuple
 
+import aiohttp
 from homeassistant import config_entries
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import callback
@@ -39,11 +40,11 @@ class ViennaSmartmeterFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         self._errors = {}
 
         if user_input is not None:
-            err, client = await _test_credentials(
+            err, success = await _test_credentials(
                 user_input[CONF_USERNAME], user_input[CONF_PASSWORD]
             )
 
-            if client:
+            if success:
                 return self.async_create_entry(
                     title=user_input[CONF_USERNAME], data=user_input
                 )
@@ -77,16 +78,15 @@ class ViennaSmartmeterFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         )
 
 
-async def _test_credentials(
-    username: str, password: str
-) -> Tuple[Optional[str], AsyncSmartmeter]:
+async def _test_credentials(username: str, password: str) -> Tuple[Optional[str], bool]:
     """Check if credentials are valid."""
     _LOGGER.debug("Testing vienna_smartmeter credentials")
     try:
-        client = AsyncSmartmeter(username, password)
-        await client.refresh_token()
-        await client.get_zaehlpunkte()
-        return (None, client)
+        async with aiohttp.ClientSession() as session:
+            client = AsyncSmartmeter(username, password, session)
+            await client.refresh_token()
+            await client.get_zaehlpunkte()
+        return None, True
     except SmartmeterLoginError:
         error = "auth"
     except Exception as ex:  # pylint: disable=broad-except
@@ -97,8 +97,8 @@ async def _test_credentials(
                 )
             )
         )
-        error = "connection"
-    return error, None
+        error = "unknown"
+    return error, False
 
 
 class ViennaSmartmeterOptionsFlowHandler(config_entries.OptionsFlow):
@@ -124,7 +124,7 @@ class ViennaSmartmeterOptionsFlowHandler(config_entries.OptionsFlow):
             self.options.update(user_input)
             return await self._update_options()
 
-        scan_interval = self.config_entry.get(  # type: ignore[attr-defined]
+        scan_interval = self.config_entry.options.get(
             CONF_SCAN_INTERVAL, SCAN_INTERVAL.total_seconds()
         )
 

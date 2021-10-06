@@ -16,6 +16,9 @@
 from unittest.mock import patch
 
 import pytest
+from vienna_smartmeter.errors import SmartmeterLoginError
+
+from tests import load_fixture_json
 
 pytest_plugins = "pytest_homeassistant_custom_component"  # pylint: disable=invalid-name
 
@@ -47,7 +50,10 @@ def skip_notifications_fixture():
 @pytest.fixture(name="bypass_get_data")
 def bypass_get_data_fixture():
     """Skip calls to get data from API."""
-    with patch("vienna_smartmeter._async.client.AsyncSmartmeter._request"):
+    with patch(
+        "vienna_smartmeter.AsyncSmartmeter.welcome",
+        return_value=load_fixture_json("welcome_data"),
+    ):
         yield
 
 
@@ -57,7 +63,34 @@ def bypass_get_data_fixture():
 def error_get_data_fixture():
     """Simulate error when retrieving data from API."""
     with patch(
+        "vienna_smartmeter.AsyncSmartmeter.welcome",
+        side_effect=Exception,
+    ):
+        yield
+
+
+# In this fixture, we are forcing calls to async_get_data to
+# raise an Exception. This is useful for exception handling.
+@pytest.fixture(name="auth_error_on_get_data")
+def auth_error_get_data_fixture():
+    """Simulate authentication error when retrieving data from API."""
+    with patch(
+        "vienna_smartmeter.AsyncSmartmeter.welcome",
+        side_effect=SmartmeterLoginError,
+    ):
+        yield
+
+
+# In this fixture, we are forcing calls to async_get_data
+# to raise an Exception. This is useful for exception handling.
+@pytest.fixture(name="timeout_error_on_get_data")
+def timeout_error_get_data_fixture():
+    """Simulate Timeout error when retrieving data from API."""
+    with patch(
         "vienna_smartmeter._async.client.AsyncSmartmeter._request",
+        side_effect=Exception,
+    ), patch(
+        "vienna_smartmeter.AsyncSmartmeter._request",
         side_effect=Exception,
     ):
         yield
