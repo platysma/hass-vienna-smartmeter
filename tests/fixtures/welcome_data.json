@@ -1,0 +1,52 @@
+{
+  "hasSmartMeter": true,
+  "hasDataInPast": true,
+  "isDataDeleted": false,
+  "dataDeletionTimestampUTC": null,
+  "zaehlpunkt": {
+    "zaehlpunktName": "Demo-Zählpunkt",
+    "zaehlpunktnummer": "DEMO00000000000000000000000000001",
+    "zaehlpunktAnlagentyp": "TAGSTROM",
+    "adresse": "Thomas-Klestil-Platz  6, 1030 Wien",
+    "postleitzahl": "1030",
+    "meterReadings": [
+      {
+        "value": 20857619,
+        "type": "1-2:1.8.0",
+        "validated": false,
+        "date": "2021-10-05T22:00:00.000Z"
+      }
+    ],
+    "pmaxReadings": [
+      {
+        "value": 0.0,
+        "type": "1-1:1.6.0",
+        "validated": false,
+        "startDate": null,
+        "endDate": null,
+        "range": "DAY"
+      },
+      {
+        "value": 0.0,
+        "type": "1-1:1.6.0",
+        "validated": false,
+        "startDate": null,
+        "endDate": null,
+        "range": "MONTH"
+      }
+    ],
+    "consumptionYesterday": {
+      "value": 9509,
+      "validated": false,
+      "date": "2021-10-04T22:00:00.000Z"
+    },
+    "consumptionDayBeforeYesterday": {
+      "value": 7583,
+      "validated": false,
+      "date": "2021-10-03T22:00:00.000Z"
+    },
+    "optOutDetails": {
+      "isOptOut": false
+    }
+  }
+}
