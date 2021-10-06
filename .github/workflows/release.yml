@@ -39,13 +39,6 @@ jobs:
           version-command: |
             bash -o pipefail -c "poetry version | awk '{ print \$2 }'"
 
-      - name: Update version in manifest.json
-        if: steps.check-version.outputs.tag
-        uses: pocket-apps/action-update-version@v1
-        with:
-          files: "manifest.json"
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Create zip release
         if: steps.check-version.outputs.tag
         uses: thedoctor0/zip-release@master
