@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "hass-vienna-smartmeter"
-version = "0.1.2"
+version = "0.0.0"
 description = "Custom home assistant integration to add sensors for your Vienna Smart Meter energy meters."
 authors = ["Platysma <platysma.dev@gmail.com>"]
 
