@@ -41,7 +41,7 @@ Currently a HACS installation is not available.
 
 ### Manual Installation
 
-1. Download the [latest release](releases/latest/download/release.zip) zip file.
+1. Download the [latest release](https://github.com/platysma/hass-vienna-smartmeter/releases/latest/download/release.zip) zip file.
 2. Unpack it.
 3. Copy the `vienna_smartmeter` directory from the unpacked archive to `custom_components` in your Home Assistant configuration directory (If you do not have a `custom_components` directory there, you need to create it.).
 4. Restart Home Assistant
